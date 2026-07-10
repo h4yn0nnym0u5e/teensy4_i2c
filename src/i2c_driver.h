@@ -86,6 +86,7 @@ protected:
 
 class I2CMaster : public I2CDriver {
 public:
+    const int NO_RESTART{-1};
     // Configures the master and enables it. You should call this before
     // attempting to communicate with any slaves.
     // 'frequency' determines the bus frequency in Hz. You must not set
@@ -113,7 +114,7 @@ public:
     // Set 'send_stop' to true if this is the last transfer in the transaction.
     // Set 'send_stop' to false if are going to make another transfer.
     // Call finished() to see if the call has finished.
-    virtual void write_async(uint8_t address, const uint8_t* buffer, size_t num_bytes, bool send_stop) = 0;
+    virtual void write_async(int address, const uint8_t* buffer, size_t num_bytes, bool send_stop) = 0;
 
     // Reads the specified number of bytes and copies them into the supplied buffer.
     // The caller must not modify the buffer until the read is complete.
@@ -121,7 +122,7 @@ public:
     // Set 'send_stop' to true if this is the last transfer in the transaction.
     // Set 'send_stop' to false if are going to make another transfer.
     // Call finished() to see if the call has finished.
-    virtual void read_async(uint8_t address, uint8_t* buffer, size_t num_bytes, bool send_stop) = 0;
+    virtual void read_async(int address, uint8_t* buffer, size_t num_bytes, bool send_stop) = 0;
 };
 
 class I2CSlave : public I2CDriver {

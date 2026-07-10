@@ -245,7 +245,7 @@ size_t IMX_RT1060_I2CMaster::get_bytes_transferred() {
     return buff.get_bytes_transferred();
 }
 
-void IMX_RT1060_I2CMaster::write_async(uint8_t address, const uint8_t* buffer, size_t num_bytes, bool send_stop) {
+void IMX_RT1060_I2CMaster::write_async(int address, const uint8_t* buffer, size_t num_bytes, bool send_stop) {
     if (!start(address, MASTER_WRITE)) {
         return;
     }
@@ -262,7 +262,7 @@ void IMX_RT1060_I2CMaster::write_async(uint8_t address, const uint8_t* buffer, s
     port->MIER |= LPI2C_MIER_TDIE;
 }
 
-void IMX_RT1060_I2CMaster::read_async(uint8_t address, uint8_t* buffer, size_t num_bytes, bool send_stop) {
+void IMX_RT1060_I2CMaster::read_async(int address, uint8_t* buffer, size_t num_bytes, bool send_stop) {
     if (num_bytes > MAX_MASTER_READ_LENGTH) {
         _error = I2CError::invalid_request;
         return;
@@ -404,7 +404,11 @@ inline void IMX_RT1060_I2CMaster::clear_all_msr_flags() {
                   LPI2C_MSR_EPF | LPI2C_MSR_RDF | LPI2C_MSR_TDF);
 }
 
-bool IMX_RT1060_I2CMaster::start(uint8_t address, uint32_t direction) {
+bool IMX_RT1060_I2CMaster::start(int address, uint32_t direction) {
+    // trying to continue transaction?
+    if (NO_RESTART == address)
+        return true;
+
     if (!finished()) {
         // We haven't completed the previous transaction yet
         #ifdef DEBUG_I2C
