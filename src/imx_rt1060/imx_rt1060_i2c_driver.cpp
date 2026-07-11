@@ -335,6 +335,8 @@ void IMX_RT1060_I2CMaster::_interrupt_service_routine() {
         port->MIER &= ~LPI2C_MIER_TDIE; // We don't want to handle TDF if we can avoid it.
         state = State::stopped;
         port->MSR = LPI2C_MSR_SDF;
+        if (nullptr != callback)
+            callback(context);
     }
 
     if (msr & LPI2C_MSR_RDF) {
@@ -353,6 +355,8 @@ void IMX_RT1060_I2CMaster::_interrupt_service_routine() {
                     state = State::stopping;
                 } else {
                     state = State::transfer_complete;
+                    if (nullptr != callback)
+                        callback(context);
                 }
                 port->MCR &= ~LPI2C_MCR_MEN;    // Avoids triggering PLTF if we didn't send a STOP
             }
@@ -382,6 +386,8 @@ void IMX_RT1060_I2CMaster::_interrupt_service_routine() {
                     port->MTDR = LPI2C_MTDR_CMD_STOP;
                 } else {
                     state = State::transfer_complete;
+                    if (nullptr != callback)
+                        callback(context);
                 }
                 port->MCR &= ~LPI2C_MCR_MEN;    // Avoids triggering PLTF if we didn't send a STOP
             }

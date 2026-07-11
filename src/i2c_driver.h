@@ -123,6 +123,10 @@ public:
     // Set 'send_stop' to false if are going to make another transfer.
     // Call finished() to see if the call has finished.
     virtual void read_async(int address, uint8_t* buffer, size_t num_bytes, bool send_stop) = 0;
+
+    // Set callback to be triggered at the end of an asynchronous transaction
+    virtual void set_callback(void (*fn)(void* context)) {}
+    virtual void set_context(void* ctxt) {}
 };
 
 class I2CSlave : public I2CDriver {

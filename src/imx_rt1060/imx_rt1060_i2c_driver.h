@@ -124,6 +124,10 @@ public:
 
     void read_async(int address, uint8_t* buffer, size_t num_bytes, bool send_stop) override;
 
+    // callback occurs when an async transaction completes
+    void set_callback(void (*fn)(void* context)) override { callback = fn; }
+    void set_context(void* ctxt) override { context = ctxt; }
+
     // DO NOT call this method directly.
     void _interrupt_service_routine();
 
@@ -147,6 +151,8 @@ private:
     volatile State state = State::idle;
     volatile uint32_t ignore_tdf = false;       // True for a receive transfer
     volatile bool stop_on_completion = false;   // True if the transmit transfer requires a stop.
+    void (*callback)(void* context){nullptr};   // called when async transaction ends
+    void* context{nullptr};
 
     void (* isr)();
     void set_clock(uint32_t frequency);
