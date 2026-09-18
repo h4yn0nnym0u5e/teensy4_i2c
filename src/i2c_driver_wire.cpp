@@ -2,6 +2,7 @@
 // Released under the MIT License. See license.txt. (https://opensource.org/licenses/MIT)
 
 #include "i2c_driver_wire.h"
+#if defined(ENABLE_TEENSY4_I2C_WIRE)
 
 static int toWireResult(I2CError error) {
     if (error == I2CError::ok) return 0;
@@ -139,3 +140,4 @@ void I2CDriverWire::on_receive_wrapper(size_t num_bytes, uint16_t address) {
 I2CDriverWire Wire(Master, Slave);
 I2CDriverWire Wire1(Master1, Slave1);
 I2CDriverWire Wire2(Master2, Slave2);
+#endif // defined(ENABLE_TEENSY4_I2C_WIRE)

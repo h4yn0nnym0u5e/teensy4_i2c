@@ -4,6 +4,10 @@
 #ifndef I2C_DRIVER_WIRE_H
 #define I2C_DRIVER_WIRE_H
 
+#define noENABLE_TEENSY4_I2C_WIRE
+
+#if defined(ENABLE_TEENSY4_I2C_WIRE)
+
 #include <Arduino.h>
 #include <functional>
 #include "i2c_driver.h"
@@ -162,5 +166,6 @@ extern I2CDriverWire Wire2;     // Pins 24 and 25; SCL2 and SDA2
 
 // Alias for backwards compatibility with Wire.h
 using TwoWire = I2CDriverWire;
+#endif // defined(ENABLE_TEENSY4_I2C_WIRE)
 
 #endif //I2C_DRIVER_WIRE_H

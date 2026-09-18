@@ -215,21 +215,25 @@ IMX_RT1060_I2CMaster::IMX_RT1060_I2CMaster(IMXRT_LPI2C_Registers* port, IMX_RT10
 }
 
 void IMX_RT1060_I2CMaster::begin(uint32_t frequency) {
-    // Make sure master mode is disabled before configuring it.
-    stop(port, config.irq);
+    if (!begin_done) // only allow begin to run once
+    {
+        // Make sure master mode is disabled before configuring it.
+        stop(port, config.irq);
 
-    // Setup pins and master clock
-    initialise_common(config, pad_control_config, pullup_config);
+        // Setup pins and master clock
+        initialise_common(config, pad_control_config, pullup_config);
 
-    // Configure and Enable Master Mode
-    // Set FIFO watermarks. Determines when the RDF and TDF interrupts happen
-    port->MFCR = LPI2C_MFCR_RXWATER(0) | LPI2C_MFCR_TXWATER(0);
-    set_clock(frequency);
+        // Configure and Enable Master Mode
+        // Set FIFO watermarks. Determines when the RDF and TDF interrupts happen
+        port->MFCR = LPI2C_MFCR_RXWATER(0) | LPI2C_MFCR_TXWATER(0);
+        set_clock(frequency);
 
-    // Setup interrupt service routine.
-    attachInterruptVector(config.irq, isr);
-    port->MIER = LPI2C_MIER_RDIE | LPI2C_MIER_SDIE | LPI2C_MIER_NDIE | LPI2C_MIER_ALIE | LPI2C_MIER_FEIE | LPI2C_MIER_PLTIE;
-    NVIC_ENABLE_IRQ(config.irq);
+        // Setup interrupt service routine.
+        attachInterruptVector(config.irq, isr);
+        port->MIER = LPI2C_MIER_RDIE | LPI2C_MIER_SDIE | LPI2C_MIER_NDIE | LPI2C_MIER_ALIE | LPI2C_MIER_FEIE | LPI2C_MIER_PLTIE;
+        NVIC_ENABLE_IRQ(config.irq);
+    }
+    begin_done = true;
 }
 
 void IMX_RT1060_I2CMaster::end() {

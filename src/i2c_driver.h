@@ -80,6 +80,7 @@ public:
 
 protected:
     volatile I2CError _error = I2CError::ok;
+    bool begin_done = false;
     uint32_t pad_control_config;
     InternalPullup pullup_config;
 };
