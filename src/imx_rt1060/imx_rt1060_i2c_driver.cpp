@@ -53,7 +53,7 @@ struct I2CSlaveConfiguration {
     uint8_t CLKHOLD;
 };
 
-//#define USE_OLD_CONFIG
+#define USE_OLD_CONFIG
 #ifdef USE_OLD_CONFIG
 const I2CMasterConfiguration DefaultStandardModeMasterConfiguration = {
     .PRESCALE = 1,
@@ -238,6 +238,7 @@ void IMX_RT1060_I2CMaster::begin(uint32_t frequency) {
 
 void IMX_RT1060_I2CMaster::end() {
     stop(port, config.irq);
+    begin_done = false; // can begin again
 }
 
 inline bool IMX_RT1060_I2CMaster::finished() {
@@ -337,6 +338,13 @@ void IMX_RT1060_I2CMaster::_interrupt_service_routine() {
 
     if (msr & LPI2C_MSR_SDF) {
         port->MIER &= ~LPI2C_MIER_TDIE; // We don't want to handle TDF if we can avoid it.
+
+        // This can be triggered by clearing LPI2C_MCR_MEN, as it will
+        // transmit a stop condition once the FIFO empties
+        if (State::stopping != state)
+        {
+            _error = I2CError::unexpected_stop;
+        }
         state = State::stopped;
         port->MSR = LPI2C_MSR_SDF;
         if (nullptr != callback)
@@ -388,12 +396,14 @@ void IMX_RT1060_I2CMaster::_interrupt_service_routine() {
                 if (stop_on_completion) {
                     state = State::stopping;
                     port->MTDR = LPI2C_MTDR_CMD_STOP;
+                    port->MCR &= ~LPI2C_MCR_MEN;    // Avoids triggering PLTF if we didn't send a STOP
                 } else {
+                    // must leave Master enabled, or it sends a stop
+                    // without us asking for it!
                     state = State::transfer_complete;
                     if (nullptr != callback)
                         callback(context);
                 }
-                port->MCR &= ~LPI2C_MCR_MEN;    // Avoids triggering PLTF if we didn't send a STOP
             }
         }
         // else ignore it. This flag is frequently set in read transfers.

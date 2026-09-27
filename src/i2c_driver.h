@@ -23,7 +23,8 @@ enum class I2CError {
     master_fifos_not_empty = 8, // Programming error. FIFOs not empty at start of transaction.
     address_nak = 9,            // Raised by master if the slave does not reply when called
     data_nak = 10,              // Raised by master if the slave fails to acknowledge a data byte
-    bit_error = 11              // Slave sent a 1 but found a 0 on the bus. Transaction aborted.
+    bit_error = 11,             // Slave sent a 1 but found a 0 on the bus. Transaction aborted.
+    unexpected_stop = 12        // 
 };
 
 enum class InternalPullup : uint32_t {
